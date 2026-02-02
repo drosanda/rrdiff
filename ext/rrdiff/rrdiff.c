@@ -5,6 +5,18 @@
 
 VALUE RRDiff = Qnil;
 
+/*
+ * librsync >= 2.x removed RS_DEFAULT_STRONG_LEN and requires the signature
+ * magic number for rs_sig_file(). Use a reasonable strong length default.
+ *
+ * RS_DEFAULT_MIN_STRONG_LEN exists in modern librsync headers and provides
+ * a sane default minimum when filesize is unknown. (Alternative: hardcode 8/12.)
+ */
+ 
+#ifndef RS_BLAKE2_SIG_MAGIC
+#   define RS_BLAKE2_SIG_MAGIC RS_MD4_SIG_MAGIC
+#endif
+
 static VALUE rrdiff_signature(VALUE mod, VALUE old_file, VALUE sig_file)
 {
     FILE *basis, *signature;
@@ -15,7 +27,7 @@ static VALUE rrdiff_signature(VALUE mod, VALUE old_file, VALUE sig_file)
     basis = fopen(StringValuePtr(old_file), "rb");
     signature = fopen(StringValuePtr(sig_file), "wb");
 
-    result = rs_sig_file(basis, signature, RS_DEFAULT_BLOCK_LEN, 0, RS_BLAKE2_SIG_MAGIC, &stats);
+    result = rs_sig_file(basis, signature, RS_DEFAULT_BLOCK_LEN, RS_DEFAULT_STRONG_LEN, RS_BLAKE2_SIG_MAGIC, &stats);
 
     fclose(basis);
     fclose(signature);
