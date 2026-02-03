@@ -45,11 +45,13 @@ static VALUE rrdiff_delta(VALUE mod, VALUE new_file, VALUE sig_file, VALUE delta
     sigfile = fopen(StringValuePtr(sig_file), "rb");
     deltafile = fopen(StringValuePtr(delta_file), "wb");
 
-    if((rs_result result = rs_loadsig_file(sigfile, &sig, &stats)) != RS_DONE)
+    if (rs_result result = rs_loadsig_file(sigfile, &sig, &stats)) {
         return Qnil;
+    }
 
-    if ((rs_result result = rs_build_hash_table(sig)) != RS_DONE)
+    if (rs_result result = rs_build_hash_table(sig)) {
         return Qnil;
+    }
 
     rs_result result = rs_delta_file(sig, newfile, deltafile, &stats);
 
